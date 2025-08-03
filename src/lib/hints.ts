@@ -131,6 +131,44 @@ export async function addHint(hintData: AddHintData): Promise<Hint> {
   return data;
 }
 
+// Search hints by query
+export async function searchHints(query: string): Promise<Record<string, Record<string, Hint[]>>> {
+  const { data, error } = await supabase
+    .from('hints')
+    .select('*')
+    .or(`description.ilike.%${query}%,country.ilike.%${query}%,meta_type.ilike.%${query}%`)
+    .order('created_at', { ascending: false });
+    
+  if (error) throw error;
+  
+  // Group by meta_type then by country
+  const grouped: Record<string, Record<string, Hint[]>> = {};
+  (data || []).forEach(hint => {
+    if (!grouped[hint.meta_type]) {
+      grouped[hint.meta_type] = {};
+    }
+    if (!grouped[hint.meta_type][hint.country]) {
+      grouped[hint.meta_type][hint.country] = [];
+    }
+    grouped[hint.meta_type][hint.country].push(hint);
+  });
+  
+  return grouped;
+}
+
+// Get all countries (unique)
+export async function getAllCountries(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('hints')
+    .select('country')
+    .order('country');
+    
+  if (error) throw error;
+  
+  const uniqueCountries = [...new Set(data?.map(item => item.country) || [])];
+  return uniqueCountries;
+}
+
 // Helper function to capitalize meta types
 export function capitalizeMetaType(metaType: string): string {
   return metaType

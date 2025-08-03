@@ -7,7 +7,10 @@ import Index from "./pages/Index";
 import Country from "./pages/Country";
 import Metas from "./pages/Metas";
 import MetaDetail from "./pages/MetaDetail";
+import Add from "./pages/Add";
+import Search from "./pages/Search";
 import NotFound from "./pages/NotFound";
+import { NavBar } from "./components/NavBar";
 
 const queryClient = new QueryClient();
 
@@ -17,11 +20,14 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <NavBar />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/country/:name" element={<Country />} />
           <Route path="/metas" element={<Metas />} />
           <Route path="/meta/:meta_type" element={<MetaDetail />} />
+          <Route path="/add" element={<Add />} />
+          <Route path="/search" element={<Search />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
