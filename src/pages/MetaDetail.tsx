@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getHintsByMeta, capitalizeMetaType, Hint } from "@/lib/hints";
+import { getHintsByMeta, formatMetaType, Hint } from "@/lib/hints";
 import { HintCard } from "@/components/HintCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronRight } from "lucide-react";
@@ -66,13 +66,13 @@ const MetaDetail = () => {
           <div className="flex items-center gap-2 mb-8">
             <ChevronRight className="h-8 w-8 text-primary" />
             <h1 className="text-4xl font-bold text-foreground">
-              {capitalizeMetaType(metaType)}
+              {formatMetaType(metaType)}
             </h1>
           </div>
           
           <div className="text-center py-12">
             <p className="text-xl text-muted-foreground">
-              No hints found for {capitalizeMetaType(metaType)}.
+              No hints found for {formatMetaType(metaType)}.
             </p>
           </div>
         </div>
@@ -86,7 +86,7 @@ const MetaDetail = () => {
         <div className="flex items-center gap-2 mb-8">
           <ChevronRight className="h-8 w-8 text-primary" />
           <h1 className="text-4xl font-bold text-foreground">
-            {capitalizeMetaType(metaType)}
+            {formatMetaType(metaType)}
           </h1>
         </div>
 

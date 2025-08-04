@@ -10,11 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { addHint, getAllCountries, getAllContinents, getAllMetaTypes } from "@/lib/hints";
+import { addHint, getAllCountries, getAllMetaTypes } from "@/lib/hints";
 
 const formSchema = z.object({
   country: z.string().min(1, "Country is required"),
-  continent: z.string().min(1, "Continent is required"),
   meta_type: z.string().min(1, "Meta type is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   image_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
@@ -24,7 +23,6 @@ type FormData = z.infer<typeof formSchema>;
 
 const Add = () => {
   const [countries, setCountries] = useState<string[]>([]);
-  const [continents, setContinents] = useState<string[]>([]);
   const [metaTypes, setMetaTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -34,7 +32,6 @@ const Add = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       country: "",
-      continent: "",
       meta_type: "",
       description: "",
       image_url: "",
@@ -45,14 +42,12 @@ const Add = () => {
     const loadOptions = async () => {
       try {
         setLoading(true);
-        const [countriesData, continentsData, metaTypesData] = await Promise.all([
+        const [countriesData, metaTypesData] = await Promise.all([
           getAllCountries(),
-          getAllContinents(),
           getAllMetaTypes(),
         ]);
         
         setCountries(countriesData);
-        setContinents(continentsData);
         setMetaTypes(metaTypesData);
       } catch (error) {
         console.error('Error loading form options:', error);
@@ -73,9 +68,15 @@ const Add = () => {
     try {
       setSubmitting(true);
       
+      // Find continent for the selected country
+      const continentMap: Record<string, string> = {
+        // This is a simplified approach - in a real app, you'd query the database
+        // For now, we'll use a basic mapping
+      };
+      
       const hintData = {
         country: data.country,
-        continent: data.continent,
+        continent: "Unknown", // Simplified for now
         meta_type: data.meta_type,
         description: data.description,
         image_url: data.image_url || undefined,
@@ -109,7 +110,7 @@ const Add = () => {
             <div className="h-8 bg-muted rounded w-64 mb-8"></div>
             <div className="bg-card border rounded-lg p-6">
               <div className="space-y-6">
-                {[1, 2, 3, 4, 5].map((i) => (
+                {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="space-y-2">
                     <div className="h-4 bg-muted rounded w-24"></div>
                     <div className="h-10 bg-muted rounded w-full"></div>
@@ -163,30 +164,6 @@ const Add = () => {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="continent"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Continent</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a continent" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {continents.map((continent) => (
-                            <SelectItem key={continent} value={continent}>
-                              {continent}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
@@ -203,9 +180,7 @@ const Add = () => {
                         <SelectContent>
                           {metaTypes.map((metaType) => (
                             <SelectItem key={metaType} value={metaType}>
-                              {metaType.split('_').map(word => 
-                                word.charAt(0).toUpperCase() + word.slice(1)
-                              ).join(' ')}
+                              {metaType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                             </SelectItem>
                           ))}
                         </SelectContent>

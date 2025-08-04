@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getHintsByCountry, capitalizeMetaType, Hint } from "@/lib/hints";
+import { getHintsByCountry, formatMetaType, Hint } from "@/lib/hints";
 import { HintCard } from "@/components/HintCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Map } from "lucide-react";
@@ -87,7 +87,7 @@ const Country = () => {
         {metaTypes.map((metaType) => (
           <div key={metaType} className="mb-8">
             <h2 className="text-2xl font-semibold mb-4 text-foreground">
-              {capitalizeMetaType(metaType)}
+              {formatMetaType(metaType)}
             </h2>
             
             <div className="space-y-4">

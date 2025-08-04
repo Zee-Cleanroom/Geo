@@ -3,7 +3,7 @@ import { Search as SearchIcon, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { searchHints, capitalizeMetaType, Hint } from "@/lib/hints";
+import { searchHints, formatMetaType, Hint } from "@/lib/hints";
 import { HintCard } from "@/components/HintCard";
 import { useToast } from "@/hooks/use-toast";
 
@@ -113,7 +113,7 @@ const Search = () => {
             {metaTypes.map((metaType) => (
               <div key={metaType} className="animate-fade-in">
                 <h2 className="text-2xl font-semibold mb-4 text-foreground">
-                  {capitalizeMetaType(metaType)}
+                  {formatMetaType(metaType)}
                 </h2>
 
                 {Object.entries(results[metaType]).map(([country, hints]) => (

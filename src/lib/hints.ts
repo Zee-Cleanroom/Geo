@@ -131,19 +131,45 @@ export async function addHint(hintData: AddHintData): Promise<Hint> {
   return data;
 }
 
-// Search hints by query
+// Enhanced search with keyword support
 export async function searchHints(query: string): Promise<Record<string, Record<string, Hint[]>>> {
-  const { data, error } = await supabase
+  const keywords = query.toLowerCase().split(' ').filter(k => k.length > 0);
+  
+  // First try exact phrase match
+  const exactResults = await supabase
     .from('hints')
     .select('*')
     .or(`description.ilike.%${query}%,country.ilike.%${query}%,meta_type.ilike.%${query}%`)
     .order('created_at', { ascending: false });
     
-  if (error) throw error;
+  if (exactResults.error) throw exactResults.error;
+  
+  // Then try keyword match if no exact results or if using multiple keywords
+  let finalResults = exactResults.data || [];
+  
+  if (keywords.length > 1) {
+    const keywordResults = await supabase
+      .from('hints')
+      .select('*')
+      .order('created_at', { ascending: false });
+      
+    if (keywordResults.error) throw keywordResults.error;
+    
+    // Filter results that contain all keywords
+    const keywordFiltered = (keywordResults.data || []).filter(hint => {
+      const searchText = `${hint.description} ${hint.country} ${hint.meta_type}`.toLowerCase();
+      return keywords.every(keyword => searchText.includes(keyword));
+    });
+    
+    // Prioritize exact matches by putting them first
+    const exactIds = new Set(finalResults.map(h => h.id));
+    const keywordOnly = keywordFiltered.filter(h => !exactIds.has(h.id));
+    finalResults = [...finalResults, ...keywordOnly];
+  }
   
   // Group by meta_type then by country
   const grouped: Record<string, Record<string, Hint[]>> = {};
-  (data || []).forEach(hint => {
+  finalResults.forEach(hint => {
     if (!grouped[hint.meta_type]) {
       grouped[hint.meta_type] = {};
     }
@@ -169,10 +195,12 @@ export async function getAllCountries(): Promise<string[]> {
   return uniqueCountries;
 }
 
-// Helper function to capitalize meta types
+// Helper function to format meta types
+export function formatMetaType(metaType: string): string {
+  return metaType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+// Legacy function for backward compatibility
 export function capitalizeMetaType(metaType: string): string {
-  return metaType
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  return formatMetaType(metaType);
 }

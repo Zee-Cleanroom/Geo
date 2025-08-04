@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllMetaTypes, capitalizeMetaType } from "@/lib/hints";
+import { getAllMetaTypes, formatMetaType } from "@/lib/hints";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronRight } from "lucide-react";
@@ -75,7 +75,7 @@ const Metas = () => {
             >
               <CardContent className="p-4 flex items-center justify-between">
                 <span className="font-medium text-card-foreground">
-                  {capitalizeMetaType(metaType)}
+                  {formatMetaType(metaType)}
                 </span>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </CardContent>
