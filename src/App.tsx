@@ -9,6 +9,7 @@ import Metas from "./pages/Metas";
 import MetaDetail from "./pages/MetaDetail";
 import Add from "./pages/Add";
 import Search from "./pages/Search";
+import Quiz from "./pages/Quiz";
 import NotFound from "./pages/NotFound";
 import { NavBar } from "./components/NavBar";
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/meta/:meta_type" element={<MetaDetail />} />
           <Route path="/add" element={<Add />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/quiz" element={<Quiz />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

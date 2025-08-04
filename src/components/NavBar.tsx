@@ -1,4 +1,4 @@
-import { Home, PlusCircle, LayoutGrid, Search } from "lucide-react";
+import { Home, PlusCircle, LayoutGrid, Search, Shuffle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ export const NavBar = () => {
     { icon: PlusCircle, label: "Add", path: "/add" },
     { icon: LayoutGrid, label: "Metas", path: "/metas" },
     { icon: Search, label: "Search", path: "/search" },
+    { icon: Shuffle, label: "Quiz", path: "/quiz" },
   ];
 
   return (

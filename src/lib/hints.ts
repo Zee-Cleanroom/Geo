@@ -204,3 +204,18 @@ export function formatMetaType(metaType: string): string {
 export function capitalizeMetaType(metaType: string): string {
   return formatMetaType(metaType);
 }
+
+// Get a random hint for quiz mode
+export async function getRandomHint(): Promise<Hint> {
+  const { data, error } = await supabase
+    .from('hints')
+    .select('*')
+    .order('id')
+    .limit(1000); // Get a reasonable sample size
+    
+  if (error) throw error;
+  if (!data || data.length === 0) throw new Error('No hints available');
+  
+  const randomIndex = Math.floor(Math.random() * data.length);
+  return data[randomIndex];
+}
