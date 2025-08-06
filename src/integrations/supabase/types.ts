@@ -14,6 +14,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      country: {
+        Row: {
+          continent: string | null
+          country: string
+        }
+        Insert: {
+          continent?: string | null
+          country: string
+        }
+        Update: {
+          continent?: string | null
+          country?: string
+        }
+        Relationships: []
+      }
       hints: {
         Row: {
           continent: string
@@ -43,6 +58,56 @@ export type Database = {
           meta_type?: string
         }
         Relationships: []
+      }
+      meta_types: {
+        Row: {
+          name: string
+        }
+        Insert: {
+          name: string
+        }
+        Update: {
+          name?: string
+        }
+        Relationships: []
+      }
+      quiz_progress: {
+        Row: {
+          correct_count: number | null
+          hint_id: string
+          id: string | null
+          incorrect_count: number | null
+          last_seen_at: string | null
+          next_due: string | null
+          user_id: string | null
+        }
+        Insert: {
+          correct_count?: number | null
+          hint_id: string
+          id?: string | null
+          incorrect_count?: number | null
+          last_seen_at?: string | null
+          next_due?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          correct_count?: number | null
+          hint_id?: string
+          id?: string | null
+          incorrect_count?: number | null
+          last_seen_at?: string | null
+          next_due?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_progress_hint_id_fkey"
+            columns: ["hint_id"]
+            isOneToOne: false
+            referencedRelation: "hints"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
