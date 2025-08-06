@@ -31,8 +31,8 @@ const Add = () => {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      country: undefined,
-      meta_type: undefined,
+      country: "",
+      meta_type: "",
       description: "",
       image_url: "",
     },
@@ -47,8 +47,15 @@ const Add = () => {
           getAllMetaTypes(),
         ]);
         
-        setCountries(countriesData);
-        setMetaTypes(metaTypesData);
+        // Filter out empty strings, null, or undefined values
+        const filteredCountries = countriesData.filter(country => country && country.trim() !== '');
+        const filteredMetaTypes = metaTypesData.filter(metaType => metaType && metaType.trim() !== '');
+        
+        console.log('Countries data:', filteredCountries);
+        console.log('Meta types data:', filteredMetaTypes);
+        
+        setCountries(filteredCountries);
+        setMetaTypes(filteredMetaTypes);
       } catch (error) {
         console.error('Error loading form options:', error);
         toast({
@@ -145,14 +152,14 @@ const Add = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Country</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a country" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {countries.map((country) => (
+                          {countries.filter(country => country && country.trim()).map((country) => (
                             <SelectItem key={country} value={country}>
                               {country}
                             </SelectItem>
@@ -171,14 +178,14 @@ const Add = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Meta Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a meta type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {metaTypes.map((metaType) => (
+                          {metaTypes.filter(metaType => metaType && metaType.trim()).map((metaType) => (
                             <SelectItem key={metaType} value={metaType}>
                               {metaType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                             </SelectItem>
