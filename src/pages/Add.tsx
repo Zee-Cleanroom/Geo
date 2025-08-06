@@ -31,8 +31,8 @@ const Add = () => {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      country: "",
-      meta_type: "",
+      country: undefined,
+      meta_type: undefined,
       description: "",
       image_url: "",
     },
