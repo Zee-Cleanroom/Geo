@@ -77,16 +77,17 @@ export async function getHintsByCountry(country: string): Promise<Record<string,
   return grouped;
 }
 
-// 5. Get all meta types (unique) from meta_types table
+// 5. Get all meta types (unique) from hints table (only those with at least 1 hint)
 export async function getAllMetaTypes(): Promise<string[]> {
-  const { data, error } = await (supabase as any)
-    .from('meta_types')
-    .select('name')
-    .order('name');
+  const { data, error } = await supabase
+    .from('hints')
+    .select('meta_type')
+    .order('meta_type');
     
   if (error) throw error;
   
-  return data?.map((item: any) => item.name) || [];
+  const uniqueMetaTypes = [...new Set(data?.map(item => item.meta_type) || [])];
+  return uniqueMetaTypes;
 }
 
 // 5a. Add new meta type to meta_types table
