@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { addHint, getAllCountries, getAllMetaTypes } from "@/lib/hints";
+import { addHint, getAllCountries, getAllMetaTypes, addMetaType } from "@/lib/hints";
 
 const formSchema = z.object({
   country: z.string().min(1, "Country is required"),
@@ -26,6 +26,7 @@ const Add = () => {
   const [metaTypes, setMetaTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [isCustomMetaType, setIsCustomMetaType] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -74,6 +75,11 @@ const Add = () => {
   const onSubmit = async (data: FormData) => {
     try {
       setSubmitting(true);
+      
+      // If it's a custom meta type, add it to the meta_types table first
+      if (isCustomMetaType) {
+        await addMetaType(data.meta_type);
+      }
       
       // Find continent for the selected country
       const continentMap: Record<string, string> = {
@@ -178,20 +184,55 @@ const Add = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Meta Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
+                      {isCustomMetaType ? (
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a meta type" />
-                          </SelectTrigger>
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Enter new meta type..."
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={() => {
+                                setIsCustomMetaType(false);
+                                field.onChange("");
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </FormControl>
-                        <SelectContent>
-                          {metaTypes.filter(metaType => metaType && metaType.trim()).map((metaType) => (
-                            <SelectItem key={metaType} value={metaType}>
-                              {metaType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      ) : (
+                        <Select 
+                          onValueChange={(value) => {
+                            if (value === "__ADD_NEW__") {
+                              setIsCustomMetaType(true);
+                              field.onChange("");
+                            } else {
+                              field.onChange(value);
+                            }
+                          }} 
+                          value={field.value || ""}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a meta type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {metaTypes.filter(metaType => metaType && metaType.trim()).map((metaType) => (
+                              <SelectItem key={metaType} value={metaType}>
+                                {metaType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="__ADD_NEW__" className="text-primary font-medium">
+                              + Add New Meta Type
                             </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                          </SelectContent>
+                        </Select>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}

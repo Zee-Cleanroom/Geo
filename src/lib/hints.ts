@@ -77,17 +77,36 @@ export async function getHintsByCountry(country: string): Promise<Record<string,
   return grouped;
 }
 
-// 5. Get all meta types (unique)
+// 5. Get all meta types (unique) from meta_types table
 export async function getAllMetaTypes(): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('hints')
-    .select('meta_type')
-    .order('meta_type');
+  const { data, error } = await (supabase as any)
+    .from('meta_types')
+    .select('name')
+    .order('name');
     
   if (error) throw error;
   
-  const uniqueMetaTypes = [...new Set(data?.map(item => item.meta_type) || [])];
-  return uniqueMetaTypes;
+  return data?.map((item: any) => item.name) || [];
+}
+
+// 5a. Add new meta type to meta_types table
+export async function addMetaType(metaType: string): Promise<void> {
+  // Check if meta type already exists
+  const { data: existing } = await (supabase as any)
+    .from('meta_types')
+    .select('name')
+    .eq('name', metaType)
+    .single();
+    
+  if (existing) {
+    return; // Already exists, no need to add
+  }
+  
+  const { error } = await (supabase as any)
+    .from('meta_types')
+    .insert([{ name: metaType }]);
+    
+  if (error) throw error;
 }
 
 // 6. Get hints by meta type, grouped by country, sorted desc
