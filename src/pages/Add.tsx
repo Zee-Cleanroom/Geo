@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { addHint, getAllCountries, getAllMetaTypes, addMetaType } from "@/lib/hints";
+import { addHint, getAllCountries, getAllMetaTypes, addMetaType, addCountry } from "@/lib/hints";
 
 const formSchema = z.object({
   country: z.string().min(1, "Country is required"),
@@ -27,6 +27,7 @@ const Add = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isCustomMetaType, setIsCustomMetaType] = useState(false);
+  const [isCustomCountry, setIsCustomCountry] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -79,6 +80,11 @@ const Add = () => {
       // If it's a custom meta type, add it to the meta_types table first
       if (isCustomMetaType) {
         await addMetaType(data.meta_type);
+      }
+      
+      // If it's a custom country, add it to the country table first
+      if (isCustomCountry) {
+        await addCountry(data.country);
       }
       
       // Find continent for the selected country
@@ -158,20 +164,55 @@ const Add = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Country</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
+                      {isCustomCountry ? (
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a country" />
-                          </SelectTrigger>
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Enter new country..."
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={() => {
+                                setIsCustomCountry(false);
+                                field.onChange("");
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </FormControl>
-                        <SelectContent>
-                          {countries.filter(country => country && country.trim()).map((country) => (
-                            <SelectItem key={country} value={country}>
-                              {country}
+                      ) : (
+                        <Select 
+                          onValueChange={(value) => {
+                            if (value === "__ADD_NEW__") {
+                              setIsCustomCountry(true);
+                              field.onChange("");
+                            } else {
+                              field.onChange(value);
+                            }
+                          }} 
+                          value={field.value || ""}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {countries.filter(country => country && country.trim()).map((country) => (
+                              <SelectItem key={country} value={country}>
+                                {country}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="__ADD_NEW__" className="text-primary font-medium">
+                              + Add New Country
                             </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                          </SelectContent>
+                        </Select>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}

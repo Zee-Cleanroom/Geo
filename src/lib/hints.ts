@@ -110,6 +110,26 @@ export async function addMetaType(metaType: string): Promise<void> {
   if (error) throw error;
 }
 
+// 5b. Add new country to country table
+export async function addCountry(country: string): Promise<void> {
+  // Check if country already exists
+  const { data: existing } = await (supabase as any)
+    .from('country')
+    .select('country')
+    .eq('country', country)
+    .single();
+    
+  if (existing) {
+    return; // Already exists, no need to add
+  }
+  
+  const { error } = await (supabase as any)
+    .from('country')
+    .insert([{ country: country, continent: "Unknown" }]);
+    
+  if (error) throw error;
+}
+
 // 6. Get hints by meta type, grouped by country, sorted desc
 export async function getHintsByMeta(meta_type: string): Promise<Record<string, Hint[]>> {
   const { data, error } = await supabase
