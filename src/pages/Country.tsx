@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getHintsByCountry, formatMetaType, Hint } from "@/lib/hints";
 import { HintCard } from "@/components/HintCard";
+import { CountryProgress } from "@/components/CountryProgress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Map } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Map, Plus, Info, Camera, Route, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Country = () => {
   const { name } = useParams<{ name: string }>();
   const [hintsByMeta, setHintsByMeta] = useState<Record<string, Hint[]>>({});
   const [loading, setLoading] = useState(true);
+  const [notes, setNotes] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const countryName = name ? decodeURIComponent(name) : '';
 
@@ -79,9 +85,80 @@ const Country = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-2 mb-8">
-          <Map className="h-8 w-8 text-primary" />
-          <h1 className="text-4xl font-bold text-foreground">{countryName}</h1>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-2">
+            <Map className="h-8 w-8 text-primary" />
+            <h1 className="text-4xl font-bold text-foreground">{countryName}</h1>
+          </div>
+          <Button
+            onClick={() => navigate(`/add?country=${encodeURIComponent(countryName)}`)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Hint
+          </Button>
+        </div>
+
+        {/* Country Overview Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Info className="h-5 w-5" />
+                Country Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <CountryProgress country={countryName} />
+              
+              <div className="space-y-4">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <Camera className="h-4 w-4" />
+                  Photography Notes
+                </h3>
+                <Textarea
+                  placeholder="Add notes about camera coverage, quality, blur patterns, etc..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                Quick Stats
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Meta Types:</span>
+                  <span className="font-medium">{metaTypes.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total Hints:</span>
+                  <span className="font-medium">
+                    {Object.values(hintsByMeta).reduce((acc, hints) => acc + hints.length, 0)}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  className="w-full flex items-center gap-2"
+                  onClick={() => navigate(`/search?q=${encodeURIComponent(countryName)}`)}
+                >
+                  <Route className="h-4 w-4" />
+                  Search All Hints
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {metaTypes.map((metaType) => (

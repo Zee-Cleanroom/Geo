@@ -30,9 +30,6 @@ export const HintCard = ({ hint }: HintCardProps) => {
           </div>
         )}
         
-        <p className="text-sm text-muted-foreground">
-          Added: {format(new Date(hint.created_at), 'MMM d, yyyy')}
-        </p>
       </CardContent>
     </Card>
   );

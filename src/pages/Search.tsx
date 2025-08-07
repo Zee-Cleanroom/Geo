@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
-import { Search as SearchIcon, Filter } from "lucide-react";
+import { Search as SearchIcon, Filter, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { searchHints, formatMetaType, Hint } from "@/lib/hints";
 import { HintCard } from "@/components/HintCard";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Search = () => {
   const [query, setQuery] = useState("");
@@ -13,6 +15,8 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const debouncedSearch = useCallback(
     debounce(async (searchQuery: string) => {
@@ -44,6 +48,15 @@ const Search = () => {
   useEffect(() => {
     debouncedSearch(query);
   }, [query, debouncedSearch]);
+
+  // Check for query parameter from URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const queryParam = urlParams.get('q');
+    if (queryParam && queryParam !== query) {
+      setQuery(queryParam);
+    }
+  }, [location.search, query]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -119,9 +132,20 @@ const Search = () => {
                 {Object.entries(results[metaType]).map(([country, hints]) => (
                   <Card key={country} className="mb-6 border border-border bg-card">
                     <CardHeader>
-                      <CardTitle className="text-lg text-card-foreground">
-                        {country}
-                      </CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg text-card-foreground">
+                          {country}
+                        </CardTitle>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/add?country=${encodeURIComponent(country)}`)}
+                          className="flex items-center gap-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Add Meta
+                        </Button>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">

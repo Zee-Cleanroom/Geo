@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { PlusCircle } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -29,6 +30,7 @@ const Add = () => {
   const [isCustomMetaType, setIsCustomMetaType] = useState(false);
   const [isCustomCountry, setIsCustomCountry] = useState(false);
   const { toast } = useToast();
+  const location = useLocation();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -39,6 +41,15 @@ const Add = () => {
       image_url: "",
     },
   });
+
+  // Check for country parameter from URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const countryParam = urlParams.get('country');
+    if (countryParam) {
+      form.setValue('country', countryParam);
+    }
+  }, [location.search, form]);
 
   useEffect(() => {
     const loadOptions = async () => {
